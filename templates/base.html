@@ -1,0 +1,6 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}ANNVIDHA FOODS{% endblock %}</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head><body>
+<nav class="top"><a class="logo" href="{{ url_for('store') }}">ANNVIDHA FOODS</a>{% block nav %}{% endblock %}
+{% block topright %}{% if me %}<a href="{{ url_for('account') }}">Hi, {{ me.name.split()[0] }}</a><a href="{{ url_for('logout') }}">Logout</a>{% else %}<a href="{{ url_for('login') }}">Login</a><a href="{{ url_for('register') }}">Sign up</a>{% endif %}{% if staff %}<a href="{{ url_for('dashboard') }}">Staff panel</a>{% endif %}{% endblock %}</nav>
+<div class="wrap">{% with m = get_flashed_messages() %}{% for x in m %}<div class="flash">{{ x }}</div>{% endfor %}{% endwith %}{% block body %}{% endblock %}</div>
+{% block scripts %}{% endblock %}</body></html>

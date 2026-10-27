@@ -1,0 +1,11 @@
+{% extends "admin_base.html" %}{% block title %}Ingredients{% endblock %}
+{% block content %}<h2>Ingredients (shown on homepage)</h2>
+<div class="card"><form method="post" enctype="multipart/form-data">{% if edit %}<input type="hidden" name="id" value="{{ edit.id }}">{% endif %}
+<div class="grid"><div><label>Name (e.g. Kaju)</label><input name="name" required value="{{ edit.name if edit }}"></div>
+<div><label>Short note</label><input name="note" value="{{ edit.note if edit }}"></div>
+<div><label>Emoji (used if no photo)</label><input name="emoji" maxlength="4" value="{{ edit.emoji if edit }}"></div>
+<div><label>Photo</label><input type="file" name="photo" accept="image/*"></div></div><br>
+<button>{{ 'Save' if edit else 'Add ingredient' }}</button> {% if edit %}<a class="btn sec" href="{{ url_for('ingredients') }}">Cancel</a>{% endif %}</form></div><br>
+<div class="grid">{% for i in items %}<div class="card"><div class="img" style="border-radius:50%;max-width:120px">{% if i.photo %}<img src="{{ i.photo }}" alt="{{ i.name }}">{% else %}{{ i.emoji or '•' }}{% endif %}</div>
+<h3 style="margin:8px 0 0">{{ i.name }}</h3><div class="mut">{{ i.note }}</div><br><a class="btn sec" href="{{ url_for('ingredients', edit=i.id) }}">Edit</a>
+<form method="post" action="{{ url_for('delete_ingredient', iid=i.id) }}" style="display:inline" onsubmit="return confirm('Delete?')"><button>Delete</button></form></div>{% endfor %}</div>{% endblock %}

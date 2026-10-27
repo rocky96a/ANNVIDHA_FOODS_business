@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block title %}My account{% endblock %}
+{% block body %}<h2>My account</h2><div class="grid"><div class="card"><h3 style="margin-top:0">Profile</h3><form method="post">
+<label>Name</label><input name="name" value="{{ me.name }}" required><label>Email</label><input name="email" value="{{ me.email }}"><label>Address</label><textarea name="address" rows="2">{{ me.address }}</textarea>
+<label>Pincode</label><input name="pincode" maxlength="6" value="{{ me.pincode }}"><br><br><button>Save</button></form><p class="mut">Phone: {{ me.phone }}</p></div></div>
+<h3>My orders</h3><div class="card scroll"><table><tr><th>#</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th></tr>
+{% for o in orders %}<tr><td>{{ o.id }}</td><td>{% for i in o["items"] %}{{ i.name }} × {{ i.qty }}<br>{% endfor %}</td><td>₹{{ o.total }}</td><td><span class="pill">{{ o.status }}</span></td><td>{{ o.created_at[:10] }}</td></tr>
+{% else %}<tr><td colspan="5" class="mut">No orders yet.</td></tr>{% endfor %}</table></div>{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "admin_base.html" %}{% block title %}Inventory{% endblock %}
+{% block content %}<h2>Inventory by location</h2>
+<div class="card scroll"><table><tr><th>Product</th><th>Total</th><th>Where it is (location · rack · qty)</th></tr>
+{% for p in prods %}<tr><td>{{ p.name }}</td><td><b>{{ p.stock }}</b></td><td>{% for r in by.get(p.id, []) %}{{ r.loc }}{% if r.rack %} · {{ r.rack }}{% endif %} · {{ r.qty }}<br>{% else %}<span class="mut">Not stocked anywhere</span>{% endfor %}</td></tr>{% endfor %}</table></div>
+{% if staff.role != 'worker' %}<br><div class="grid"><div class="card"><h3 style="margin-top:0">Set stock at a location</h3><form method="post"><input type="hidden" name="action" value="set">
+<label>Product</label><select name="product_id">{% for p in prods %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select>
+<label>Location</label><select name="location_id">{% for l in locs %}<option value="{{ l.id }}">{{ l.name }}</option>{% endfor %}</select>
+<label>Quantity</label><input name="qty" type="number" min="0" required><label>Rack / bin (optional)</label><input name="rack"><br><br><button>Save</button></form></div>
+<div class="card"><h3 style="margin-top:0">Add location</h3><form method="post"><input type="hidden" name="action" value="loc"><label>Name</label><input name="name" required><label>Address</label><input name="address"><br><br><button>Add</button></form>
+<p class="mut">{% for l in locs %}{{ l.name }}{{ ", " if not loop.last }}{% endfor %}</p></div></div>{% endif %}{% endblock %}

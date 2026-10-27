@@ -1,0 +1,9 @@
+{% extends "admin_base.html" %}{% block title %}Staff{% endblock %}
+{% block content %}<h2>Staff & workers</h2><div class="card"><h3 style="margin-top:0">Add staff</h3><form method="post"><div class="grid">
+<div><label>Name</label><input name="name"></div><div><label>Username</label><input name="username" required></div><div><label>Password</label><input name="password" type="password" minlength="6" required></div>
+<div><label>Role</label><select name="role">{% for r in roles %}<option>{{ r }}</option>{% endfor %}</select></div></div><br><button>Add</button></form>
+<p class="mut">admin: everything · manager: orders, products, inventory, reports · worker: only assigned orders (pack/ship) and view stock</p></div><br>
+<div class="card scroll"><table><tr><th>Name</th><th>Username</th><th>Role</th><th>Open tasks</th><th>Status</th><th></th></tr>
+{% for m in members %}<tr><td>{{ m.name }}</td><td>{{ m.username }}</td><td><span class="pill">{{ m.role }}</span></td><td><a href="{{ url_for('orders', worker=m.id) }}">{{ load.get(m.id, 0) }}</a></td><td>{{ 'Active' if m.active else 'Disabled' }}</td>
+<td><form method="post" action="{{ url_for('staff_toggle', sid=m.id) }}" style="display:inline"><button>{{ 'Disable' if m.active else 'Enable' }}</button></form>
+<form method="post" action="{{ url_for('staff_password', sid=m.id) }}" style="display:inline"><input name="password" type="password" placeholder="New password" minlength="6" style="width:130px"><button>Reset</button></form></td></tr>{% endfor %}</table></div>{% endblock %}

@@ -1,0 +1,21 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}Seller Hub{% endblock %} · ANNVIDHA FOODS</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}"></head>
+<body>{% set ep = request.endpoint %}
+<header class="adm-top"><a class="logo" href="{{ url_for('dashboard') }}">ANNVIDHA FOODS<small>Seller Hub</small></a>
+<form action="{{ url_for('orders') }}"><input name="q" placeholder="Search orders by #, name or phone" value="{{ request.args.get('q','') }}"><button>Search</button></form>
+<div class="me"><a href="{{ url_for('store') }}" target="_blank">View store ↗</a><span>{{ staff.name }} <span class="pill" style="background:#334155;color:#fff">{{ staff.role }}</span></span><a href="{{ url_for('staff_logout') }}">Logout</a></div></header>
+<aside class="adm-side">
+{% if staff.role != 'worker' %}<a class="{{ 'on' if ep=='dashboard' }}" href="{{ url_for('dashboard') }}">📊 Dashboard</a>{% endif %}
+<div class="sec">Operations</div>
+<a class="{{ 'on' if ep=='orders' }}" href="{{ url_for('orders') }}">🧾 {{ 'My tasks' if staff.role == 'worker' else 'Orders' }}</a>
+<a class="{{ 'on' if ep=='inventory' }}" href="{{ url_for('inventory') }}">📦 Inventory</a>
+{% if staff.role != 'worker' %}<div class="sec">Business</div>
+<a class="{{ 'on' if ep=='analytics' }}" href="{{ url_for('analytics') }}">📈 Business analytics</a>
+<a class="{{ 'on' if ep in ('expenses','delete_expense') }}" href="{{ url_for('expenses') }}">💸 Expenses</a>
+<div class="sec">Catalogue</div>
+<a class="{{ 'on' if ep=='products' }}" href="{{ url_for('products') }}">🛍️ Products</a>
+<a class="{{ 'on' if ep=='ingredients' }}" href="{{ url_for('ingredients') }}">🌰 Ingredients</a>{% endif %}
+{% if staff.role == 'admin' %}<div class="sec">Admin</div><a class="{{ 'on' if ep=='staff_admin' }}" href="{{ url_for('staff_admin') }}">👥 Staff &amp; workers</a>{% endif %}
+</aside>
+<main class="adm-main">{% with m = get_flashed_messages() %}{% for x in m %}<div class="flash">{{ x }}</div>{% endfor %}{% endwith %}{% block content %}{% endblock %}</main></body></html>

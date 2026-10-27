@@ -1,0 +1,17 @@
+{% extends "admin_base.html" %}{% block title %}Products{% endblock %}
+{% block content %}<h2>Products</h2>
+<div class="card"><h3 style="margin-top:0">{{ 'Edit product' if edit else 'Add product' }}</h3>
+<form method="post" enctype="multipart/form-data">{% if edit %}<input type="hidden" name="id" value="{{ edit.id }}">{% endif %}
+<div class="grid"><div><label>Name</label><input name="name" required value="{{ edit.name if edit }}"></div>
+<div><label>Price ₹</label><input name="price" type="number" min="1" required value="{{ edit.price if edit }}"></div>
+<div><label>MRP ₹</label><input name="mrp" type="number" min="0" value="{{ edit.mrp if edit }}"></div>
+<div><label>Cost price ₹ (your purchase/production cost per unit)</label><input name="cost_price" type="number" min="0" value="{{ edit.cost_price if edit else 0 }}" required></div>
+{% if not edit %}<div><label>Opening stock</label><input name="stock" type="number" min="0" value="0"></div>{% else %}<div class="mut">Stock: {{ edit.stock }} (change it in Inventory)</div>{% endif %}</div>
+<label>Photo (jpg/png/webp, max 5 MB)</label><input type="file" name="photo" accept="image/*">{% if edit and edit.image_url %}<img src="{{ edit.image_url }}" alt="" style="height:70px;border-radius:8px;margin-top:6px">{% endif %}<label>…or Image URL</label><input name="image_url" value="{{ edit.image_url if edit }}">
+<label>Description</label><textarea name="description" rows="2">{{ edit.description if edit }}</textarea>
+<label><input type="checkbox" name="active" style="width:auto" {% if not edit or edit.active %}checked{% endif %}> Visible on store</label><br>
+<button>{{ 'Save' if edit else 'Add' }}</button> {% if edit %}<a class="btn sec" href="{{ url_for('products') }}">Cancel</a>{% endif %}</form></div><br>
+<div class="card scroll"><table><tr><th>Name</th><th>Selling price</th><th>Cost price</th><th>Stock</th><th>Live</th><th></th></tr>
+{% for p in products %}<tr><td style="display:flex;gap:10px;align-items:center">{% if p.image_url %}<img class="thumb" src="{{ p.image_url }}" alt="">{% else %}<span class="thumb">🍪</span>{% endif %}{{ p.name }}</td><td>₹{{ p.price }}</td><td>₹{{ p.cost_price or 0 }}</td><td>{{ p.stock }}</td><td>{{ 'Yes' if p.active else 'No' }}</td>
+<td><a class="btn sec" href="{{ url_for('products', edit=p.id) }}">Edit</a>
+<form method="post" action="{{ url_for('delete_product', pid=p.id) }}" style="display:inline" onsubmit="return confirm('Delete?')"><button>Delete</button></form></td></tr>{% endfor %}</table></div>{% endblock %}

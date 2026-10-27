@@ -1,0 +1,12 @@
+{% extends "admin_base.html" %}{% block title %}Orders{% endblock %}
+{% block content %}<h2>{{ 'My tasks' if staff.role == 'worker' else 'Orders' }}</h2>
+<p><a class="btn sec" href="{{ url_for('orders') }}">All</a> {% for s in statuses %}<a class="btn sec" href="{{ url_for('orders', status=s) }}">{{ s }}</a> {% endfor %}</p>
+<div class="card scroll"><table><tr><th>#</th><th>Customer</th><th>Items</th><th>Total</th><th>Worker</th><th>Status</th><th>When</th></tr>
+{% for o in orders %}<tr><td>{{ o.id }}</td><td>{{ o.name }}<br><span class="mut">{{ o.phone }}<br>{{ o.address }}, {{ o.pincode }}</span></td>
+<td>{% for i in o["items"] %}{{ i.name }} × {{ i.qty }}<br>{% endfor %}</td><td>₹{{ o.total }}</td>
+<td>{% if staff.role != 'worker' %}<form method="post" action="{{ url_for('assign', oid=o.id) }}"><select name="worker" onchange="this.form.submit()"><option value="">Unassigned</option>{% for w in workers %}<option value="{{ w.id }}" {{ 'selected' if w.id==o.assigned_to }}>{{ w.name }} ({{ w.role }})</option>{% endfor %}</select></form>
+{% elif o.assigned_to == staff.id %}You{% else %}<form method="post" action="{{ url_for('take', oid=o.id) }}"><button>Take</button></form>{% endif %}</td>
+<td>{% if o.status == 'Cancelled' %}<span class="pill st-Cancelled">Cancelled</span>{% elif staff.role == 'worker' and o.assigned_to != staff.id %}<span class="pill st-{{ o.status }}">{{ o.status }}</span>
+{% else %}<form method="post" action="{{ url_for('set_status', oid=o.id) }}"><select name="status" onchange="this.form.submit()">
+{% if staff.role == 'worker' %}<option selected disabled>{{ o.status }}</option><option>Packed</option><option>Shipped</option>{% else %}{% for s in statuses %}<option {{ 'selected' if s==o.status }}>{{ s }}</option>{% endfor %}{% endif %}</select></form>{% endif %}</td>
+<td>{{ o.created_at[:16].replace('T',' ') }}</td></tr>{% else %}<tr><td colspan="7" class="mut">No orders.</td></tr>{% endfor %}</table></div>{% endblock %}

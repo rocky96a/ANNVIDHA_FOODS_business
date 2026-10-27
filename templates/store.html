@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}ANNVIDHA FOODS — Pure, Natural, Nutritious{% endblock %}
+{% block nav %}<a href="#products">Shop products</a><a href="#our-values">Our promise</a><a href="#" onclick="cartOpen(1);return false">Cart (<span id="cc">0</span>)</a>{% endblock %}
+{% block body %}</div>
+<div style="background:var(--brand);color:#fff;text-align:center;padding:8px 12px;font-size:13px;letter-spacing:.3px">PURE · NATURAL · NUTRITIOUS &nbsp; | &nbsp; Delivering across India</div>
+<section style="text-align:center;padding:clamp(42px,8vw,84px) 18px;background:radial-gradient(ellipse at top,#f6e5bd 0%,var(--bg) 72%)">
+<div style="font-size:13px;letter-spacing:3px;font-weight:700;color:#66743c">GOODNESS FROM NATURE</div>
+<h1 style="font:700 clamp(34px,7vw,64px)/1.05 Georgia,serif;margin:14px auto;max-width:850px;color:#30452b">ANNVIDHA <span style="color:var(--brand)">FOODS</span></h1>
+<p style="font:600 clamp(17px,2.8vw,24px)/1.4 Georgia,serif;margin:0 auto 12px;max-width:700px">Pure. Natural. Nutritious.</p>
+<p style="max-width:620px;margin:0 auto 24px;color:var(--mut)">Crafted by Nature, Trusted by Everyone. Discover everyday Indian food essentials, thoughtfully brought to your home.</p>
+<a class="btn" href="#products">Explore our products</a></section>
+<div class="wrap"><div style="text-align:center;margin:32px 0 24px"><div style="font-size:12px;letter-spacing:2px;color:#66743c;font-weight:700">NATURAL GOODNESS FOR EVERYDAY</div><h2 id="products" style="font-family:Georgia,serif;font-size:clamp(26px,4vw,36px);margin:8px 0">Our Products</h2><p class="mut">Simple staples for your everyday pantry.</p></div>
+<div class="grid">{% for p in products %}<div class="card"><div class="img">{% if p.image_url %}<img src="{{ p.image_url }}" alt="{{ p.name }}">{% elif 'makhana' in p.name|lower %}🌰{% elif 'sattu' in p.name|lower %}🌾{% elif 'oil' in p.name|lower %}🫙{% else %}🌿{% endif %}</div>
+<h3 style="margin:10px 0 2px">{{ p.name }}</h3><div class="mut">{{ p.description }}</div>
+<div><b>₹{{ p.price }}</b> {% if p.mrp > p.price %}<s class="mut">₹{{ p.mrp }}</s> <span class="mut">{{ (100 - p.price * 100 // p.mrp) }}% off</span>{% endif %}</div><br>
+{% if p.stock > 0 %}<button onclick='add({{ p.id }}, {{ p.name|tojson }}, {{ p.price }})'>Add to cart</button>{% else %}<span class="mut">Currently unavailable</span>{% endif %}</div>{% endfor %}</div>
+{% if ingredients %}<h2 style="font-family:Georgia,serif;text-align:center;margin-top:44px">A closer look at our pantry</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:20px;text-align:center">{% for i in ingredients %}<div><div class="img" style="border-radius:50%;width:140px;margin:auto;font-size:56px">{% if i.photo %}<img src="{{ i.photo }}" alt="{{ i.name }}">{% else %}{{ i.emoji }}{% endif %}</div><h3 style="margin:10px 0 0">{{ i.name }}</h3><div class="mut">{{ i.note }}</div></div>{% endfor %}</div>{% endif %}
+<h2 id="our-values" style="font-family:Georgia,serif;text-align:center;margin-top:48px">Our promise</h2><p style="text-align:center;max-width:650px;margin:0 auto 20px;color:var(--mut)">We believe good food starts with thoughtful choices. ANNVIDHA FOODS brings together familiar Indian pantry essentials with a focus on quality, care and trust.</p>
+<div class="grid">{% for t,d in [("Pure by purpose","A thoughtful approach to the food we bring to your table."),("Natural goodness","Everyday pantry staples inspired by traditional Indian food."),("Nutritious choices","Options for snacks, wholesome meals and everyday cooking."),("Crafted by Nature","Rooted in the goodness of familiar ingredients."),("Trusted by Everyone","Committed to clear product information and customer care."),("Across India","Our goal is to serve customers throughout India.")] %}<div class="card"><b>{{ t }}</b><div class="mut">{{ d }}</div></div>{% endfor %}</div>
+<footer style="text-align:center;margin-top:50px;padding:24px 0;border-top:1px solid var(--line)" class="mut"><a href="/admin/login">Staff login</a> · © 2026 ANNVIDHA FOODS · Serving customers across India</footer>
+<aside id="cart"><div style="display:flex;justify-content:space-between"><h2 style="margin:0">Your Cart</h2><a href="#" onclick="cartOpen(0);return false">✕</a></div><div id="items"></div><p><b>Total: <span id="tot">₹0</span></b></p>
+<label>Name</label><input id="nm" value="{{ me.name if me }}"><label>Phone (10 digits)</label><input id="ph" inputmode="numeric" maxlength="10" value="{{ me.phone if me }}"><label>Address</label><textarea id="ad" rows="2">{{ me.address if me }}</textarea><label>Pincode</label><input id="pn" inputmode="numeric" maxlength="6" value="{{ me.pincode if me }}"><br><br>
+<button style="width:100%" onclick="order()">Place order (pay on delivery / UPI link will be shared)</button><p id="msg" class="mut"></p></aside>{% endblock %}
+{% block scripts %}<script>
+const $=i=>document.getElementById(i);let cart=[];try{cart=JSON.parse(localStorage.getItem("cart")||"[]")}catch(e){}
+const sv=()=>{try{localStorage.setItem("cart",JSON.stringify(cart))}catch(e){}};
+function cartOpen(o){$("cart").classList.toggle("open",!!o)}
+function add(id,name,price){const e=cart.find(x=>x.id===id);e?e.qty++:cart.push({id,name,price,qty:1});sv();paint();cartOpen(1)}
+function ch(i,d){cart[i].qty+=d;if(cart[i].qty<1)cart.splice(i,1);sv();paint()}
+function paint(){$("cc").textContent=cart.reduce((a,b)=>a+b.qty,0);$("items").innerHTML=cart.map((x,i)=>`<div style="display:flex;gap:8px;align-items:center;margin:6px 0"><span style="flex:1">${x.name}<br><span class="mut">₹${x.price}</span></span><button onclick="ch(${i},-1)">−</button>${x.qty}<button onclick="ch(${i},1)">+</button></div>`).join("")||'<p class="mut">Your cart is empty.</p>';$("tot").textContent="₹"+cart.reduce((a,b)=>a+b.price*b.qty,0)}
+async function order(){if(!cart.length){$("msg").textContent="Please add a product first.";return}const r=await fetch("/api/order",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:$("nm").value,phone:$("ph").value,address:$("ad").value,pincode:$("pn").value,items:cart})});if(r.status===401){location="/login?next=/";return}const d=await r.json();if(!r.ok){$("msg").textContent=d.error;return}cart=[];sv();paint();$("msg").textContent="Order #"+d.order_id+" placed! Total ₹"+d.total+". We will contact you soon."}
+paint();</script>{% endblock %}

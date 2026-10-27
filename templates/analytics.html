@@ -1,0 +1,37 @@
+{% extends "admin_base.html" %}{% block title %}Business Analytics{% endblock %}
+{% block content %}
+<h2>Business analytics</h2>
+<p class="mut">ANNVIDHA FOODS · PURE, NATURAL, NUTRITIOUS — CRAFTED BY NATURE, TRUSTED BY EVERYONE</p>
+<form class="card report-filter" method="get" style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin:14px 0">
+<div><label>From</label><input type="date" name="start" value="{{ r.start.isoformat() }}" required></div>
+<div><label>To</label><input type="date" name="end" value="{{ r.end.isoformat() }}" required></div>
+<button>Apply dates</button>
+<a class="btn sec" href="{{ url_for('analytics') }}">This month</a>
+<a class="btn sec" href="{{ url_for('reports_pdf', start=r.start.isoformat(), end=r.end.isoformat()) }}">Download PDF</a>
+<a class="btn sec" href="{{ url_for('reports_csv', start=r.start.isoformat(), end=r.end.isoformat()) }}">Export CSV</a>
+</form>
+<div class="kpis">
+<div class="card kpi"><div class="ic" style="background:#dbeafe">🧾</div><div><div class="mut">Non-cancelled orders</div><div class="big">{{ r.order_count }}</div><div class="mut">Average ₹{{ "{:,}".format(r.average_order) }} / order</div></div></div>
+<div class="card kpi"><div class="ic" style="background:#dcfce7">💵</div><div><div class="mut">Delivered revenue</div><div class="big">₹{{ "{:,}".format(r.delivered_sales) }}</div><div class="mut">{{ r.delivered_count }} delivered orders</div></div></div>
+<div class="card kpi"><div class="ic" style="background:#fef3c7">📦</div><div><div class="mut">Estimated product cost</div><div class="big">₹{{ "{:,}".format(r.cogs) }}</div><div class="mut">{{ r.units }} units delivered</div></div></div>
+<div class="card kpi"><div class="ic" style="background:#ede9fe">📊</div><div><div class="mut">Gross profit estimate</div><div class="big">₹{{ "{:,}".format(r.gross_profit) }}</div><div class="mut">Delivered sales minus product cost</div></div></div>
+<div class="card kpi"><div class="ic" style="background:#fee2e2">💸</div><div><div class="mut">Recorded expenses</div><div class="big">₹{{ "{:,}".format(r.expense_total) }}</div><div class="mut">Expenses in selected dates</div></div></div>
+<div class="card kpi"><div class="ic" style="background:#cffafe">💰</div><div><div class="mut">Estimated net profit</div><div class="big" style="color:{{ '#15803d' if r.net_profit >= 0 else '#b91c1c' }}">₹{{ "{:,}".format(r.net_profit) }}</div><div class="mut">Gross profit minus expenses</div></div></div>
+</div>
+{% if r.cost_missing %}<div class="flash" style="padding:12px;background:#fff4d6;color:#854d0e;margin:12px 0">Some products have no cost price entered. Update each product under Products. Profit figures will be understated until costs are entered; historical cost may also differ from current cost.</div>{% endif %}
+<div class="row2">
+<div class="card"><h3>Order summary</h3><table>
+<tr><th>Metric</th><th>Count</th></tr><tr><td>Pending / in progress</td><td>{{ r.pending_count }}</td></tr>
+<tr><td>Delivered</td><td>{{ r.delivered_count }}</td></tr><tr><td>Cancelled</td><td>{{ r.cancelled_count }}</td></tr>
+<tr><td>All non-cancelled order value</td><td>₹{{ "{:,}".format(r.gross_sales) }}</td></tr></table></div>
+<div class="card"><h3>Expenses by category</h3>{% for category, amount in r.expense_by_category.items() %}
+<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line)"><span>{{ category }}</span><b>₹{{ "{:,}".format(amount) }}</b></div>
+{% else %}<p class="mut">No expenses in this period. <a href="{{ url_for('expenses') }}">Add expense</a></p>{% endfor %}</div>
+</div>
+<div class="card scroll" style="margin-bottom:14px"><h3>Top products by delivered sales</h3><table><tr><th>Product</th><th>Units sold</th><th>Sales</th><th>Estimated cost</th><th>Gross margin</th></tr>
+{% for p in r.top_products %}<tr><td>{{ p.name }}</td><td>{{ p.qty }}</td><td>₹{{ "{:,}".format(p.revenue) }}</td><td>₹{{ "{:,}".format(p.cost) }}</td><td>₹{{ "{:,}".format(p.revenue-p.cost) }}</td></tr>
+{% else %}<tr><td colspan="5" class="mut">No delivered sales in this period.</td></tr>{% endfor %}</table></div>
+<div class="card scroll"><h3>Recorded expenses</h3><table><tr><th>Date</th><th>Category</th><th>Note</th><th>Amount</th></tr>
+{% for e in r.expenses %}<tr><td>{{ e.expense_date }}</td><td>{{ e.category }}</td><td>{{ e.note }}</td><td>₹{{ "{:,}".format(e.amount) }}</td></tr>{% else %}<tr><td colspan="4" class="mut">No expenses recorded for this period.</td></tr>{% endfor %}</table></div>
+<p class="mut">Financial figures are estimates. Only delivered orders count as realized sales for profit calculations; cancelled orders are excluded. Product costs use the current cost price saved on each product, not necessarily the historical cost at order time.</p>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "admin_base.html" %}{% block title %}Expenses{% endblock %}
+{% block content %}
+<h2>Business expenses</h2>
+<p class="mut">Record operating costs to estimate net profit for your selected reporting period.</p>
+<div class="card" style="margin-bottom:14px"><h3 style="margin-top:0">Add expense</h3>
+<form method="post"><div class="grid">
+<div><label>Date</label><input type="date" name="expense_date" value="{{ today.isoformat() }}" required></div>
+<div><label>Category</label><select name="category" required><option value="">Choose category</option>{% for c in ['Packaging','Shipping & delivery','Advertising','Salary & wages','Rent','Utilities','Raw materials','Equipment','Platform fees','Other'] %}<option>{{ c }}</option>{% endfor %}</select></div>
+<div><label>Amount (₹)</label><input type="number" name="amount" min="1" step="1" required></div>
+<div><label>Note / reference</label><input name="note" maxlength="500" placeholder="e.g. courier bill or invoice number"></div>
+</div><button>Save expense</button></form></div>
+<form class="card" method="get" style="display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:14px"><div><label>From</label><input type="date" name="start" value="{{ start.isoformat() }}"></div><div><label>To</label><input type="date" name="end" value="{{ end.isoformat() }}"></div><button>Filter</button><div style="margin-left:auto"><b>Total: ₹{{ "{:,}".format(total) }}</b></div></form>
+<div class="card scroll"><table><tr><th>Date</th><th>Category</th><th>Note</th><th>Amount</th><th></th></tr>
+{% for e in rows %}<tr><td>{{ e.expense_date }}</td><td>{{ e.category }}</td><td>{{ e.note }}</td><td>₹{{ "{:,}".format(e.amount) }}</td><td><form method="post" action="{{ url_for('delete_expense', eid=e.id) }}" onsubmit="return confirm('Delete this expense?')"><button style="background:#b91c1c">Delete</button></form></td></tr>
+{% else %}<tr><td colspan="5" class="mut">No expenses found for this period.</td></tr>{% endfor %}</table></div>
+{% endblock %}
