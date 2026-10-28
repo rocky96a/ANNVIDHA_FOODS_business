@@ -257,7 +257,15 @@ def deduct(pid, n):
     sync(pid)
 def restore(pid, n):
     loc = db().execute("SELECT MIN(id) m FROM locations").fetchone()["m"]
-    db().execute("INSERT INTO stock(product_id,location_id,qty) VALUES(?,?,?) ON CONFLICT(product_id,location_id) DO UPDATE SET qty=qty+?", (pid, loc, n, n))
+    db().execute(
+    """
+    INSERT INTO stock (product_id, location_id, qty)
+    VALUES (?, ?, ?)
+    ON CONFLICT (product_id, location_id)
+    DO UPDATE SET qty = stock.qty + EXCLUDED.qty
+    """,
+    (pid, loc, n)
+)
     sync(pid)
 
 # ---------- storefront ----------
