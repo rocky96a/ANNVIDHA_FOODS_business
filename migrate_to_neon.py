@@ -131,7 +131,10 @@ def main():
     try:
         with psycopg.connect(DATABASE_URL) as pg:
             with pg.cursor() as cur:
-                cur.execute(SCHEMA)
+                for statement in SCHEMA.split(";"):
+                    statement = statement.strip()
+                    if statement:
+                        cur.execute(statement)
 
                 # Refuse to merge into a non-empty database.
                 # This prevents accidental duplicate IDs or overwrites.
